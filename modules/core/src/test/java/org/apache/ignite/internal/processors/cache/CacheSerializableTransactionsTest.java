@@ -1362,23 +1362,22 @@ public class CacheSerializableTransactionsTest extends GridCommonAbstractTest {
                         try (Transaction tx = txs.txStart(OPTIMISTIC, SERIALIZABLE)) {
                             Object old = cache.getAndPutIfAbsent(key, 4);
 
+                            Object newValue = cache.get(key);
+
                             assertEquals(2, old);
+
+                            assertEquals(old, newValue);
 
                             updateKey(cache, key, 3);
 
                             tx.commit();
                         }
 
-                        if (!isKeyLocal(ignite0, cache, key))
-                            fail();
-
                         log.info("Read only optimistic commit.");
                     }
                     catch (TransactionOptimisticException e) {
                         log.info("Expected exception: " + e);
-
-                        if (isKeyLocal(ignite0, cache, key))
-                            fail();
+                        fail();
                     }
 
                     checkValue(key, 3, cache.getName());
@@ -1388,18 +1387,6 @@ public class CacheSerializableTransactionsTest extends GridCommonAbstractTest {
                 destroyCache(ccfg.getName());
             }
         }
-    }
-
-    /**
-     * Checks, whether the key is stored locally.
-     * @param ignite0 Ignite 0.
-     * @param cache Cache.
-     * @param key Key.
-     */
-    private boolean isKeyLocal(Ignite ignite0, IgniteCache<Integer, Integer> cache, Integer key) {
-        return ((TcpDiscoveryNode)((ArrayList)ignite0.affinity(cache.getName())
-            .mapKeyToPrimaryAndBackups(ignite0.affinity(cache.getName()).affinityKey(key)))
-            .get(0)).id().equals(((IgniteKernal)ignite0).getLocalNodeId());
     }
 
     /**
