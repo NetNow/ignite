@@ -2286,7 +2286,18 @@ public abstract class IgniteTxLocalAdapter extends IgniteTxAdapter implements Ig
                             addInvokeResult(e, cacheVal, ret, ver);
                         }
                         else {
-                            boolean success = !hasFilters || isAll(e.context(), key, cacheVal, filter);
+                            boolean success;
+
+                            if (hasFilters) {
+                                success = isAll(e.context(), key, cacheVal, filter);
+
+                                if (!success) {
+                                    e.op(READ);
+                                    e.value(cacheVal, false, false);
+                                }
+                            }
+                            else
+                                success = true;
 
                             ret.set(cacheCtx, cacheVal, success, keepBinary);
                         }

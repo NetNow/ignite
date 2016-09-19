@@ -56,7 +56,6 @@ import org.apache.ignite.configuration.CacheConfiguration;
 import org.apache.ignite.configuration.IgniteConfiguration;
 import org.apache.ignite.configuration.NearCacheConfiguration;
 import org.apache.ignite.internal.IgniteInternalFuture;
-import org.apache.ignite.internal.IgniteKernal;
 import org.apache.ignite.internal.cluster.ClusterTopologyCheckedException;
 import org.apache.ignite.internal.util.typedef.F;
 import org.apache.ignite.internal.util.typedef.G;
@@ -66,7 +65,6 @@ import org.apache.ignite.internal.util.typedef.internal.U;
 import org.apache.ignite.lang.IgniteClosure;
 import org.apache.ignite.spi.communication.tcp.TcpCommunicationSpi;
 import org.apache.ignite.spi.discovery.tcp.TcpDiscoverySpi;
-import org.apache.ignite.spi.discovery.tcp.internal.TcpDiscoveryNode;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.TcpDiscoveryIpFinder;
 import org.apache.ignite.spi.discovery.tcp.ipfinder.vm.TcpDiscoveryVmIpFinder;
 import org.apache.ignite.spi.swapspace.inmemory.GridTestSwapSpaceSpi;
@@ -1358,26 +1356,14 @@ public class CacheSerializableTransactionsTest extends GridCommonAbstractTest {
 
                     checkValue(key, 2, cache.getName());
 
-                    try {
-                        try (Transaction tx = txs.txStart(OPTIMISTIC, SERIALIZABLE)) {
-                            Object old = cache.getAndPutIfAbsent(key, 4);
+                    try (Transaction tx = txs.txStart(OPTIMISTIC, SERIALIZABLE)) {
+                        Object old = cache.getAndPutIfAbsent(key, 4);
 
-                            Object newValue = cache.get(key);
+                        assertEquals(2, old);
 
-                            assertEquals(2, old);
+                        updateKey(cache, key, 3);
 
-                            assertEquals(old, newValue);
-
-                            updateKey(cache, key, 3);
-
-                            tx.commit();
-                        }
-
-                        log.info("Read only optimistic commit.");
-                    }
-                    catch (TransactionOptimisticException e) {
-                        log.info("Expected exception: " + e);
-                        fail();
+                        tx.commit();
                     }
 
                     checkValue(key, 3, cache.getName());
@@ -2632,22 +2618,14 @@ public class CacheSerializableTransactionsTest extends GridCommonAbstractTest {
             cache0.put(key2, -1);
             cache0.put(key3, -1);
 
-            try {
-                try (Transaction tx = txs.txStart(OPTIMISTIC, SERIALIZABLE)) {
-                    cache.get(key1);
-                    cache.get(key2);
-                    cache.get(key3);
+            try (Transaction tx = txs.txStart(OPTIMISTIC, SERIALIZABLE)) {
+                cache.get(key1);
+                cache.get(key2);
+                cache.get(key3);
 
-                    updateKey(near ? cache : cache0, key2, -2);
+                updateKey(near ? cache : cache0, key2, -2);
 
-                    tx.commit();
-                }
-
-                log.info("Read only optimistic commit.");
-            }
-            catch (TransactionOptimisticException e) {
-                log.info("Expected exception: " + e);
-                fail();
+                tx.commit();
             }
 
             checkValue(key1, -1, cacheName);
@@ -2898,24 +2876,16 @@ public class CacheSerializableTransactionsTest extends GridCommonAbstractTest {
                 checkValue(key1, newVal, CACHE1);
                 checkValue(key2, newVal, CACHE2);
 
-                try {
-                    try (Transaction tx = txs.txStart(OPTIMISTIC, SERIALIZABLE)) {
-                        Object val1 = cache1.get(key1);
-                        Object val2 = cache2.get(key2);
+                try (Transaction tx = txs.txStart(OPTIMISTIC, SERIALIZABLE)) {
+                    Object val1 = cache1.get(key1);
+                    Object val2 = cache2.get(key2);
 
-                        assertEquals(newVal, val1);
-                        assertEquals(newVal, val2);
+                    assertEquals(newVal, val1);
+                    assertEquals(newVal, val2);
 
-                        updateKey(cache2, key2, newVal);
+                    updateKey(cache2, key2, newVal);
 
-                        tx.commit();
-                    }
-
-                    log.info("Read only optimistic commit.");
-                }
-                catch (TransactionOptimisticException e) {
-                    log.info("Expected exception: " + e);
-                    fail();
+                    tx.commit();
                 }
 
                 try (Transaction tx = txs.txStart(OPTIMISTIC, SERIALIZABLE)) {
