@@ -2274,10 +2274,8 @@ public abstract class IgniteTxLocalAdapter extends IgniteTxAdapter implements Ig
                             if (hasFilters) {
                                 success = isAll(e.context(), key, cacheVal, filter);
 
-                                if (!success) {
-                                    e.op(READ);
+                                if (!success)
                                     e.value(cacheVal, false, false);
-                                }
                             }
                             else
                                 success = true;

@@ -709,6 +709,7 @@ public class CacheSerializableTransactionsTest extends GridCommonAbstractTest {
 
     /**
      * @param noVal If {@code true} there is no cache value when read in tx.
+     * @param needVer If {@code true} then gets entry, otherwise just value.
      * @throws Exception If failed.
      */
     private void txConflictRead(boolean noVal, boolean needVer) throws Exception {
@@ -735,28 +736,21 @@ public class CacheSerializableTransactionsTest extends GridCommonAbstractTest {
                         cache.put(key, expVal);
                     }
 
-                    try {
-                        try (Transaction tx = txs.txStart(OPTIMISTIC, SERIALIZABLE)) {
-                            if (needVer) {
-                                CacheEntry<Integer, Integer> val = cache.getEntry(key);
+                    try (Transaction tx = txs.txStart(OPTIMISTIC, SERIALIZABLE)) {
+                        if (needVer) {
+                            CacheEntry<Integer, Integer> val = cache.getEntry(key);
 
-                                assertEquals(expVal, val == null ? null : val.getValue());
-                            }
-                            else {
-                                Integer val = cache.get(key);
+                            assertEquals(expVal, val == null ? null : val.getValue());
+                        }
+                        else {
+                            Integer val = cache.get(key);
 
-                                assertEquals(expVal, val);
-                            }
-
-                            updateKey(cache, key, 1);
-
-                            tx.commit();
+                            assertEquals(expVal, val);
                         }
 
-                        fail();
-                    }
-                    catch (TransactionOptimisticException e) {
-                        log.info("Expected exception: " + e);
+                        updateKey(cache, key, 1);
+
+                        tx.commit();
                     }
 
                     checkValue(key, 1, cache.getName());
@@ -1356,14 +1350,21 @@ public class CacheSerializableTransactionsTest extends GridCommonAbstractTest {
 
                     checkValue(key, 2, cache.getName());
 
-                    try (Transaction tx = txs.txStart(OPTIMISTIC, SERIALIZABLE)) {
-                        Object old = cache.getAndPutIfAbsent(key, 4);
+                    try {
+                        try (Transaction tx = txs.txStart(OPTIMISTIC, SERIALIZABLE)) {
+                            Object old = cache.getAndPutIfAbsent(key, 4);
 
-                        assertEquals(2, old);
+                            assertEquals(2, old);
 
-                        updateKey(cache, key, 3);
+                            updateKey(cache, key, 3);
 
-                        tx.commit();
+                            tx.commit();
+                        }
+
+                        fail();
+                    }
+                    catch (TransactionOptimisticException e) {
+                        log.info("Expected exception: " + e);
                     }
 
                     checkValue(key, 3, cache.getName());
