@@ -2427,19 +2427,36 @@ public abstract class IgniteTxLocalAdapter extends IgniteTxAdapter implements Ig
                         ret.set(cacheCtx, old, false, keepBinary);
 
                         if (!readCommitted()) {
-                            txEntry = addEntry(optimistic() && serializable() ? op : READ,
-                                old,
-                                null,
-                                null,
-                                entry,
-                                null,
-                                CU.empty0(),
-                                false,
-                                -1L,
-                                -1L,
-                                null,
-                                skipStore,
-                                keepBinary);
+                            if (optimistic() && serializable()) {
+                                txEntry = addEntry(op,
+                                    old,
+                                    entryProcessor,
+                                    invokeArgs,
+                                    entry,
+                                    expiryPlc,
+                                    filter,
+                                    true,
+                                    drTtl,
+                                    drExpireTime,
+                                    drVer,
+                                    skipStore,
+                                    keepBinary);
+                            }
+                            else {
+                                txEntry = addEntry(READ,
+                                    old,
+                                    null,
+                                    null,
+                                    entry,
+                                    null,
+                                    CU.empty0(),
+                                    false,
+                                    -1L,
+                                    -1L,
+                                    null,
+                                    skipStore,
+                                    keepBinary);
+                            }
 
                             txEntry.markValid();
 
