@@ -2420,13 +2420,14 @@ public abstract class IgniteTxLocalAdapter extends IgniteTxAdapter implements Ig
                     else
                         old = retval ? entry.rawGetOrUnmarshal(false) : entry.rawGet();
 
+                    final GridCacheOperation op = lockOnly ? NOOP : rmv ? DELETE :
+                        entryProcessor != null ? TRANSFORM : old != null ? UPDATE : CREATE;
+
                     if (old != null && hasFilters && !filter(entry.context(), cacheKey, old, filter)) {
                         ret.set(cacheCtx, old, false, keepBinary);
 
                         if (!readCommitted()) {
-                            // Enlist failed filters as reads for non-read-committed mode,
-                            // so future ops will get the same values.
-                            txEntry = addEntry(READ,
+                            txEntry = addEntry(optimistic() && serializable() ? op : READ,
                                 old,
                                 null,
                                 null,
@@ -2454,9 +2455,6 @@ public abstract class IgniteTxLocalAdapter extends IgniteTxAdapter implements Ig
 
                         break; // While.
                     }
-
-                    final GridCacheOperation op = lockOnly ? NOOP : rmv ? DELETE :
-                        entryProcessor != null ? TRANSFORM : old != null ? UPDATE : CREATE;
 
                     txEntry = addEntry(op,
                         cacheCtx.toCacheObject(val),
