@@ -50,8 +50,30 @@
                 - javax.enterprise.util is optional.
         -->
         <osgi.import.package>
-            javax.enterprise.util;resolution:=optional,
-            !com.sun.jmx.mbeanserver,
+            org.springframework.aop,
+	        org.springframework.aop.framework,
+	        org.h2,
+	        org.h2.jdbcx,
+	        org.h2.tools,
+	        org.h2.engine,
+	        org.h2.message,
+	        org.h2.mvstore,
+	        org.h2.result,
+	        org.h2.table,
+	        org.h2.value,
+	        org.h2.api,
+	        org.h2.command,
+	        org.h2.command.ddl,
+	        org.h2.constant,
+	        org.h2.index,
+	        org.h2.jdbc,
+	        org.h2.server,
+	        org.h2.util,
+	        org.h2.store,
+	        org.h2.schema,
+	        org.h2.expression,
+	        javax.enterprise.util;resolution:=optional,
+	        !com.sun.jmx.mbeanserver,
             *
         </osgi.import.package>
         <osgi.export.package>
@@ -193,7 +215,7 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
+      <!-- <dependency>
             <groupId>org.apache.ignite.binary</groupId>
             <artifactId>test1</artifactId>
             <version>1.1</version>
@@ -205,7 +227,7 @@
             <artifactId>test2</artifactId>
             <version>1.1</version>
             <scope>test</scope>
-        </dependency>
+        </dependency>-->
     </dependencies>
 
     <build>
@@ -258,9 +280,9 @@
                 <executions>
                     <execution>
                         <phase>process-classes</phase>
-                        <goals>
+                      <!--   <goals>
                             <goal>java</goal>
-                        </goals>
+                        </goals>-->
                         <configuration>
                             <includePluginDependencies>true</includePluginDependencies>
                             <mainClass>org.apache.ignite.tools.classgen.ClassesGenerator</mainClass>

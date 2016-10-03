@@ -731,7 +731,7 @@ public class GridCacheProcessor extends GridProcessorAdapter {
 
             if (!ctx.config().isDaemon() && !getBoolean(IGNITE_SKIP_CONFIGURATION_CONSISTENCY_CHECK)) {
                 for (ClusterNode n : ctx.discovery().remoteNodes()) {
-                    if (n.attribute(ATTR_CONSISTENCY_CHECK_SKIPPED))
+                    if ((boolean) n.attribute(ATTR_CONSISTENCY_CHECK_SKIPPED))
                         continue;
 
                     checkTransactionConfiguration(n);
