@@ -127,6 +127,39 @@
                 <configuration>
                     <instructions>
                         <Fragment-Host>org.apache.ignite.ignite-core</Fragment-Host>
+                        <Import-Package>
+                          org.springframework.aop,
+                          org.springframework.aop.framework,
+                          org.h2,
+                          org.h2.jdbcx,
+                          org.h2.tools,
+                          org.h2.engine,
+                          org.h2.message,
+                          org.h2.mvstore,
+                          org.h2.result,
+                          org.h2.table,
+                          org.h2.value,
+                          org.h2.api,
+                          org.h2.command,
+                          org.h2.command.ddl,
+                          org.h2.command.dml,
+                          org.h2.constant,
+                          org.h2.index,
+                          org.h2.jdbc,
+                          org.h2.server,
+                          org.h2.util,
+                          org.h2.store,
+                          org.h2.schema,
+                          org.h2.expression,
+                          javax.enterprise.util;resolution:=optional,
+                          !com.sun.jmx.mbeanserver,
+                           *
+                       </Import-Package>
+                        <Export-Package>
+                           org.apache.ignite.internal.processors.query.h2.opt.*,
+                           org.apache.ignite.*,
+                           {local-packages}
+                        </Export-Package>
                     </instructions>
                 </configuration>
             </plugin>
