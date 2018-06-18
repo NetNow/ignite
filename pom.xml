@@ -62,7 +62,9 @@
         <module>modules/indexing</module>
         <module>modules/ssh</module>
         <module>modules/rest-http</module>
+<!-- Interlink - removed as it depends indirectly on org.jacorb:jacorb-idl:jar:2.2.3-jonas-patch-20071018 which is not in Maven central
         <module>modules/jta</module>
+-->
         <module>modules/aws</module>
         <module>modules/log4j</module>
         <module>modules/log4j2</module>
@@ -85,7 +87,9 @@
         <module>modules/osgi-karaf</module>
         <module>modules/osgi</module>
         <module>modules/web/ignite-appserver-test</module>
+<!-- Interlink - removed as it depends on ignite-jta which had to be removed due to a missing indirect dependency
         <module>modules/web/ignite-websphere-test</module>
+-->
         <module>modules/cassandra</module>
         <module>modules/flink</module>
     </modules>
